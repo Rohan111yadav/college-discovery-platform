@@ -4,10 +4,16 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { BookOpen, Heart, BarChart3, LogIn, LogOut, User } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export function Header() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const isActive = (path: string) => pathname === path;
 
@@ -39,7 +45,7 @@ export function Header() {
             <BarChart3 className="h-4 w-4" />
             <span>Compare</span>
           </Link>
-          {status === "authenticated" && (
+          {isMounted && status === "authenticated" && (
             <Link
               href="/saved"
               className={`flex items-center space-x-1.5 transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
@@ -54,7 +60,9 @@ export function Header() {
 
         {/* Auth Button/Profile */}
         <div className="flex items-center space-x-4">
-          {status === "loading" ? (
+          {!isMounted ? (
+            <div className="h-8 w-20 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md" />
+          ) : status === "loading" ? (
             <div className="h-8 w-20 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md" />
           ) : session ? (
             <div className="flex items-center space-x-4">
@@ -92,7 +100,7 @@ export function Header() {
         <Link href="/compare" className={isActive("/compare") ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-slate-500"}>
           Compare
         </Link>
-        {status === "authenticated" && (
+        {isMounted && status === "authenticated" && (
           <Link href="/saved" className={isActive("/saved") ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-slate-500"}>
             Saved
           </Link>
